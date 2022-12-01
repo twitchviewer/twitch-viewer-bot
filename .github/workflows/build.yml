@@ -1,17 +1,17 @@
-name: Build and Test
+name: Build and Test multi-os
 
-on: [pull_request]
+on: [push, pull_request] # todo: when on master, remove push
 
 env:
   PLAYWRIGHT_BROWSERS_PATH: 0
 
 jobs:
   build:
-    #if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    #if: ${{ github.event.workflow_run.conclusion == 'success' }} # modify and use to wait for lint and test finish
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest]
+        os: [windows-latest, macos-latest, ubuntu-latest]
         python-version: [3.9] #3.7, 3.8
 
     runs-on: ${{ matrix.os }}
@@ -29,19 +29,17 @@ jobs:
     - name: Get packages via poetry
       run: poetry install
 
-#    chrome is not packaged within site-packages, chromium could be used as fallback in the future, but size ~100MB
+#    Possibility to add chrome to the executable, but add 100mb+
 #    - name: Install playwright
 #      run: |
-#        poetry run python -m playwright install chromium
 #        poetry run python -m playwright install chrome
-#        ls
 
     - name: Create date env variable
       shell: bash
       run: |
         echo "today=$(date +'%Y%m%d')" >> $GITHUB_ENV
 
-    - name: Get CTVB version number
+    - name: Get CTVBot version number
       uses: SebRollen/toml-action@v1.0.0
       id: read_toml
       with:
@@ -50,11 +48,17 @@ jobs:
 
     - name: Build executable
       run: |
-        poetry run pyinstaller main_gui.py --onefile --add-binary "ctvbot_logo.ico;." --add-binary "pyproject.toml;." --icon ctvbot_logo.ico --name CTVB_${{steps.read_toml.outputs.value}}_${{env.today}}
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          poetry run pyinstaller main_gui.py --onefile --add-binary "ctvb_logo.ico;." --add-binary "pyproject.toml;." --icon ctvb_logo.ico --name CTVBot_Test_${{steps.read_toml.outputs.value}}_${{env.today}}_${{runner.os}}
+        else
+          poetry run pyinstaller main_gui.py --onefile --add-binary "ctvb_logo.ico:." --add-binary "pyproject.toml:." --icon ctvb_logo.ico --name CTVBot_Test_${{steps.read_toml.outputs.value}}_${{env.today}}_${{runner.os}}
+        fi
+        rm ./proxy/proxy.py
         mv ./proxy/ ./dist/
+      shell: bash
 
     - name: Upload artifact ${{ matrix.os }}
       uses: actions/upload-artifact@v1
       with:
-        name: CTVB_${{ steps.read_toml.outputs.value }}_${{ env.today }}
+        name: CTVBot_Test_${{ steps.read_toml.outputs.value }}_${{ env.today }}_${{ runner.os }}
         path: dist/
