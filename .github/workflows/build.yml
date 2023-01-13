@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [macos-latest, ubuntu-latest]
         python-version: [3.9] #3.7, 3.8
 
     runs-on: ${{ matrix.os }}
@@ -51,9 +51,8 @@ jobs:
         if [ "$RUNNER_OS" == "Windows" ]; then
           poetry run pyinstaller main_gui.py --onefile --add-binary "ctvb_logo.ico;." --add-binary "pyproject.toml;." --icon ctvb_logo.ico --name CTVBot_Test_${{steps.read_toml.outputs.value}}_${{env.today}}_${{runner.os}}
         else
-          poetry run pyinstaller main_gui.py --onefile --add-binary "ctvb_logo.ico:." --add-binary "pyproject.toml:." --icon ctvb_logo.ico --name CTVBot_Test_${{steps.read_toml.outputs.value}}_${{env.today}}_${{runner.os}}
+          poetry run pyinstaller main_gui.py --onefile --add-binary "ctvb_logo.ico:." --add-binary "pyproject.toml:." --icon ctvb_logo.ico --name CTVBot_Test_${{steps.read_toml.outputs.value}}_${{env.today}}_${{runner.os}}.bin
         fi
-        rm ./proxy/proxy.py
         mv ./proxy/ ./dist/
       shell: bash
 
