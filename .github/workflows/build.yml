@@ -49,9 +49,9 @@ jobs:
     - name: Build executable
       run: |
         if [ "$RUNNER_OS" == "Windows" ]; then
-          poetry run pyinstaller main_gui.py --onefile --add-binary "ctvb_logo.ico;." --add-binary "pyproject.toml;." --icon ctvb_logo.ico --name CTVBot_Test_${{steps.read_toml.outputs.value}}_${{env.today}}_${{runner.os}}
+          poetry run pyinstaller main_gui.py --onefile --add-binary "ctvbot_logo.ico;." --add-binary "pyproject.toml;." --icon ctvbot_logo.ico --name CTVBot_Test_${{steps.read_toml.outputs.value}}_${{env.today}}_${{runner.os}}
         else
-          poetry run pyinstaller main_gui.py --onefile --add-binary "ctvb_logo.ico:." --add-binary "pyproject.toml:." --icon ctvb_logo.ico --name CTVBot_Test_${{steps.read_toml.outputs.value}}_${{env.today}}_${{runner.os}}.bin
+          poetry run pyinstaller main_gui.py --onefile --add-binary "ctvbot_logo.ico:." --add-binary "pyproject.toml:." --icon ctvbot_logo.ico --name CTVBot_Test_${{steps.read_toml.outputs.value}}_${{env.today}}_${{runner.os}}.bin
         fi
         mv ./proxy/ ./dist/
       shell: bash
